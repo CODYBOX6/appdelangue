@@ -219,11 +219,6 @@ export default function DeckDetailScreen({ navigation, route }) {
           <Text style={styles.successText}>✨ Modifications enregistrées !</Text>
         </Animated.View>
 
-        {/* Info badge */}
-        <View style={styles.infoBadge}>
-          <Text style={styles.infoBadgeText}>💾 Stockage local - Les modifications sont persistantes</Text>
-        </View>
-
         <Text style={styles.label}>Titre du deck</Text>
         <TextInput
           style={[styles.input, hasChanges && styles.inputChanged]}
@@ -353,30 +348,18 @@ const styles = StyleSheet.create({
     backgroundColor: '#4CAF50',
     padding: 15,
     borderRadius: 10,
-    marginBottom: 20,
+    marginBottom: 15,
     position: 'absolute',
     top: 20,
     left: 20,
     right: 20,
     zIndex: 1000,
+    alignItems: 'center',
   },
   successText: {
-    color: '#fff',
-    textAlign: 'center',
+    color: 'white',
     fontSize: 16,
     fontWeight: 'bold',
-  },
-  infoBadge: {
-    backgroundColor: '#e3f2fd',
-    padding: 10,
-    borderRadius: 8,
-    marginBottom: 20,
-  },
-  infoBadgeText: {
-    color: '#1976d2',
-    fontSize: 13,
-    textAlign: 'center',
-    fontWeight: '600',
   },
   label: {
     fontSize: 16,

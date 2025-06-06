@@ -111,7 +111,12 @@ export default function DeckListScreen({ navigation }) {
       <Text style={styles.deckDescription}>{item.description}</Text>
       <View style={styles.deckFooter}>
         <Text style={styles.deckCategory}>🌍 {item.language?.charAt(0).toUpperCase() + item.language?.slice(1)}</Text>
-        <Text style={styles.learnButton}>Apprendre →</Text>
+        <TouchableOpacity 
+          style={styles.learnButton}
+          onPress={() => navigation.navigate('TikTokView', { deck: item })}
+        >
+          <Text style={styles.learnButtonText}>🔥 Lancer</Text>
+        </TouchableOpacity>
       </View>
     </TouchableOpacity>
   );
@@ -172,11 +177,6 @@ export default function DeckListScreen({ navigation }) {
           }
         />
       )}
-
-      {/* Badge de stockage local */}
-      <View style={styles.storageBadge}>
-        <Text style={styles.storageBadgeText}>💾 Stockage local actif</Text>
-      </View>
     </View>
   );
 }
@@ -302,47 +302,44 @@ const styles = StyleSheet.create({
   },
   deckFooter: {
     flexDirection: 'row',
-    alignItems: 'center',
     justifyContent: 'space-between',
+    alignItems: 'center',
+    marginTop: 15,
+    borderTopWidth: 1,
+    paddingTop: 10,
+    borderColor: '#f0f0f0',
   },
   deckCategory: {
-    fontSize: 13,
-    color: '#555',
-    fontWeight: '500',
+    fontSize: 12,
+    color: '#666',
   },
   learnButton: {
+    backgroundColor: '#ff9500',
+    paddingHorizontal: 15,
+    paddingVertical: 8,
+    borderRadius: 20,
+  },
+  learnButtonText: {
+    color: '#fff',
+    fontWeight: 'bold',
     fontSize: 14,
-    color: '#007AFF',
-    fontWeight: '600',
   },
   emptyContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    padding: 40,
   },
   emptyText: {
     fontSize: 24,
     color: '#333',
     marginBottom: 10,
+    fontStyle: 'italic',
+    textAlign: 'center',
+    marginTop: 10,
   },
   emptySubtext: {
     fontSize: 16,
     color: '#666',
     textAlign: 'center',
-  },
-  storageBadge: {
-    position: 'absolute',
-    bottom: 20,
-    alignSelf: 'center',
-    backgroundColor: '#4CAF50',
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 20,
-  },
-  storageBadgeText: {
-    color: '#fff',
-    fontSize: 12,
-    fontWeight: '600',
   },
 }); 

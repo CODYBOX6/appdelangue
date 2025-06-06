@@ -11,8 +11,8 @@ import {
   LayoutAnimation,
   Alert,
 } from 'react-native';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import { getApiUrl, getAuthHeaders } from '../config/api';
+import { useFocusEffect } from '@react-navigation/native';
+import localStorageAPI from '../services/localStorageAPI';
 
 export default function ReminderView({ navigation }) {
   // États locaux pour l'écran de rappels
@@ -20,34 +20,30 @@ export default function ReminderView({ navigation }) {
   const [reminders, setReminders] = useState({});
   const [loading, setLoading] = useState(true);
 
-  // Charger les decks au montage
-  useEffect(() => {
-    loadDecks();
-  }, []);
+  // Recharger les decks à chaque fois que l'écran est focus
+  useFocusEffect(
+    React.useCallback(() => {
+      loadDecks();
+    }, [])
+  );
 
   const loadDecks = async () => {
+    setLoading(true);
     try {
-      const token = await AsyncStorage.getItem('authToken');
-      const response = await fetch(getApiUrl('/products'), {
-        headers: getAuthHeaders(token),
+      const data = await localStorageAPI.getDecks();
+      // On simplifie les données pour la vue
+      const languageDecks = data.map((item, index) => {
+        const colors = ['#FFB347', '#FFD700', '#B0E57C', '#AEC6CF', '#F49AC2', '#ff7f7f', '#c1a7e2', '#87ceeb', '#f7cac9', '#98ff98'];
+        return {
+          id: item.id,
+          name: item.title,
+          color: colors[index % colors.length],
+        };
       });
-      
-      if (response.ok) {
-        const data = await response.json();
-        // Transformer en decks de langues simplifiés
-        const languageDecks = data.slice(0, 10).map((item, index) => {
-          const languages = ['🇬🇧 Anglais', '🇪🇸 Espagnol', '🇩🇪 Allemand', '🇮🇹 Italien', '🇯🇵 Japonais'];
-          const colors = ['#FFB347', '#FFD700', '#B0E57C', '#AEC6CF', '#F49AC2'];
-          return {
-            id: item.id,
-            name: languages[index % languages.length],
-            color: colors[index % colors.length],
-          };
-        });
-        setDecks(languageDecks);
-      }
+      setDecks(languageDecks);
     } catch (error) {
       console.error('Erreur chargement decks:', error);
+      Alert.alert("Erreur", "Impossible de charger les decks.");
     } finally {
       setLoading(false);
     }

@@ -13,6 +13,7 @@ import DeckDetailScreen from './screens/DeckDetailScreen';
 import CreateFlashcardScreen from './screens/CreateFlashcardScreen';
 import CreateDeckScreen from './screens/CreateDeckScreen';
 import ReminderView from './screens/ReminderView';
+import TikTokViewScreen from './screens/TikTokViewScreen';
 
 const Stack = createStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -140,6 +141,16 @@ export default function App() {
             headerTitleStyle: {
               fontWeight: 'bold',
             },
+          }}
+        />
+
+        {/* Écran TikTok View */}
+        <Stack.Screen
+          name="TikTokView"
+          component={TikTokViewScreen}
+          options={{
+            headerShown: false,
+            presentation: 'modal',
           }}
         />
       </Stack.Navigator>

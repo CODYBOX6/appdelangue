@@ -85,11 +85,6 @@ export default function LoginScreen({ navigation }) {
         <Text style={styles.subtitle}>Apprenez les langues facilement</Text>
       </Animated.View>
       
-      {/* Badge de stockage local */}
-      <View style={styles.storageBadge}>
-        <Text style={styles.storageBadgeText}>💾 Stockage local actif</Text>
-      </View>
-      
       {/* Formulaire de connexion */}
       <TextInput
         style={styles.input}
@@ -154,19 +149,6 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     marginBottom: 40,
     color: '#666',
-  },
-  storageBadge: {
-    backgroundColor: '#4CAF50',
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 20,
-    alignSelf: 'center',
-    marginBottom: 30,
-  },
-  storageBadgeText: {
-    color: '#fff',
-    fontSize: 12,
-    fontWeight: '600',
   },
   input: {
     backgroundColor: '#fff',
