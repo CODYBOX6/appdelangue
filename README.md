@@ -114,4 +114,4 @@ Pour l'API de démonstration (fakestoreapi) :
 - Le code est commenté pour faciliter la compréhension
 - La configuration API est centralisée pour faciliter les changements
 - Gestion des erreurs et états de chargement incluse
-- Compatible avec toute API REST respectant les standards JWT 
+- Compatible avec toute API REST respectant les standards JWT # appdelangue
