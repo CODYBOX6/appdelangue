@@ -140,6 +140,15 @@ export default function DeckListScreen({ navigation }) {
         </TouchableOpacity>
       </View>
 
+      {/* Bouton de création de deck */}
+      <TouchableOpacity
+        style={styles.createDeckButton}
+        onPress={() => navigation.navigate('CreateDeck')}
+        activeOpacity={0.8}
+      >
+        <Text style={styles.createDeckButtonText}>+ Créer un nouveau Deck</Text>
+      </TouchableOpacity>
+
       {/* Message si aucun deck */}
       {decks.length === 0 ? (
         <View style={styles.emptyContainer}>
@@ -212,6 +221,24 @@ const styles = StyleSheet.create({
   logoutText: {
     color: '#ff3b30',
     fontWeight: '600',
+  },
+  createDeckButton: {
+    backgroundColor: '#34C759',
+    padding: 15,
+    marginHorizontal: 15,
+    borderRadius: 10,
+    alignItems: 'center',
+    marginBottom: 10,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.15,
+    shadowRadius: 4,
+    elevation: 3,
+  },
+  createDeckButtonText: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: 'bold',
   },
   listContainer: {
     padding: 15,

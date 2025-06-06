@@ -11,6 +11,7 @@ import DeckDetailScreen from './screens/DeckDetailScreen';
 
 // Écrans bonus pour montrer l'évolutivité
 import CreateFlashcardScreen from './screens/CreateFlashcardScreen';
+import CreateDeckScreen from './screens/CreateDeckScreen';
 import ReminderView from './screens/ReminderView';
 
 const Stack = createStackNavigator();
@@ -112,9 +113,26 @@ export default function App() {
         <Stack.Screen 
           name="DeckDetail" 
           component={DeckDetailScreen} 
+          options={({ route }) => ({ 
+            headerShown: true,
+            title: route.params.deck.title, // Titre dynamique
+            headerStyle: {
+              backgroundColor: '#007AFF',
+            },
+            headerTintColor: '#fff',
+            headerTitleStyle: {
+              fontWeight: 'bold',
+            },
+          })}
+        />
+
+        {/* ÉCRAN de création de Deck */}
+        <Stack.Screen 
+          name="CreateDeck" 
+          component={CreateDeckScreen} 
           options={{ 
             headerShown: true,
-            title: 'Détail du Deck',
+            title: 'Créer un nouveau Deck',
             headerStyle: {
               backgroundColor: '#007AFF',
             },

@@ -297,6 +297,47 @@ export const localStorageAPI = {
       console.error('❌ Erreur ajout flashcard:', error);
       return { success: false, message: error.message };
     }
+  },
+
+  // Mettre à jour une flashcard
+  updateFlashcard: async (deckId, flashcardId, updatedData) => {
+    try {
+      const decks = await localStorageAPI.getDecks();
+      const deck = decks.find(d => d.id === deckId);
+
+      if (deck) {
+        const cardIndex = deck.flashcards.findIndex(c => c.id === flashcardId);
+        if (cardIndex !== -1) {
+          deck.flashcards[cardIndex] = { ...deck.flashcards[cardIndex], ...updatedData };
+          await AsyncStorage.setItem(STORAGE_KEYS.DECKS, JSON.stringify(decks));
+          console.log('✅ Flashcard mise à jour');
+          return { success: true, decks };
+        }
+      }
+      return { success: false, message: 'Flashcard non trouvée' };
+    } catch (error) {
+      console.error('❌ Erreur mise à jour flashcard:', error);
+      return { success: false, message: error.message };
+    }
+  },
+
+  // Supprimer une flashcard
+  deleteFlashcard: async (deckId, flashcardId) => {
+    try {
+      const decks = await localStorageAPI.getDecks();
+      const deck = decks.find(d => d.id === deckId);
+
+      if (deck) {
+        deck.flashcards = deck.flashcards.filter(c => c.id !== flashcardId);
+        await AsyncStorage.setItem(STORAGE_KEYS.DECKS, JSON.stringify(decks));
+        console.log('✅ Flashcard supprimée');
+        return { success: true, decks };
+      }
+      return { success: false, message: 'Deck non trouvé' };
+    } catch (error) {
+      console.error('❌ Erreur suppression flashcard:', error);
+      return { success: false, message: error.message };
+    }
   }
 };
 

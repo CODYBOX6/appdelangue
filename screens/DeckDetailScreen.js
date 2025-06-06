@@ -9,6 +9,7 @@ import {
   Alert,
   ActivityIndicator,
   Animated,
+  Platform,
 } from 'react-native';
 import localStorageAPI from '../services/localStorageAPI';
 
@@ -37,6 +38,11 @@ export default function DeckDetailScreen({ navigation, route }) {
       category !== deck.category;
     setHasChanges(changed);
   }, [title, description, category]);
+
+  // UseEffect pour mettre à jour le titre de la navigation
+  useEffect(() => {
+    navigation.setOptions({ title });
+  }, [title, navigation]);
 
   // Fonction de modification avec stockage local
   const handleUpdate = async () => {
@@ -125,6 +131,84 @@ export default function DeckDetailScreen({ navigation, route }) {
         },
       ]
     );
+  };
+
+  // Gérer la suppression d'une flashcard
+  const handleDeleteFlashcard = (flashcardId) => {
+    Alert.alert(
+      '🗑️ Supprimer la carte',
+      'Êtes-vous sûr de vouloir supprimer cette flashcard ?',
+      [
+        { text: 'Annuler', style: 'cancel' },
+        {
+          text: 'Supprimer',
+          style: 'destructive',
+          onPress: async () => {
+            const result = await localStorageAPI.deleteFlashcard(deck.id, flashcardId);
+            if (result.success) {
+              setFlashcards(result.decks.find(d => d.id === deck.id).flashcards);
+              Alert.alert('✅ Succès', 'Flashcard supprimée.');
+            } else {
+              Alert.alert('❌ Erreur', result.message || 'Impossible de supprimer la carte.');
+            }
+          },
+        },
+      ]
+    );
+  };
+
+  // Gérer la modification d'une flashcard
+  const handleUpdateFlashcard = (flashcard) => {
+    if (Platform.OS === 'ios') {
+      Alert.prompt(
+        '✏️ Modifier la question',
+        `Question actuelle : "${flashcard.question}"`,
+        [
+          {
+            text: 'Annuler',
+            style: 'cancel',
+          },
+          {
+            text: 'Suivant',
+            onPress: (newQuestion) => {
+              Alert.prompt(
+                '✏️ Modifier la réponse',
+                `Réponse actuelle : "${flashcard.answer}"`,
+                [
+                  {
+                    text: 'Annuler',
+                    style: 'cancel',
+                  },
+                  {
+                    text: 'Enregistrer',
+                    onPress: async (newAnswer) => {
+                      const result = await localStorageAPI.updateFlashcard(deck.id, flashcard.id, { question: newQuestion, answer: newAnswer });
+                      if (result.success) {
+                        setFlashcards(result.decks.find(d => d.id === deck.id).flashcards);
+                        Alert.alert('✅ Succès', 'Flashcard modifiée.');
+                      } else {
+                        Alert.alert('❌ Erreur', result.message || 'Impossible de modifier la carte.');
+                      }
+                    },
+                  },
+                ],
+                'plain-text',
+                flashcard.answer
+              );
+            },
+          },
+        ],
+        'plain-text',
+        flashcard.question
+      );
+    } else {
+      // Alert for Android and other platforms
+      Alert.alert(
+        'Fonctionnalité non disponible',
+        'La modification de flashcards est uniquement supportée sur iOS pour cette démo.',
+        [{ text: 'OK' }]
+      );
+    }
   };
 
   return (
@@ -221,47 +305,26 @@ export default function DeckDetailScreen({ navigation, route }) {
           </TouchableOpacity>
 
           {showFlashcards && (
-            <View style={styles.flashcardsList}>
-              {flashcards.length === 0 ? (
-                <Text style={styles.noFlashcardsText}>
-                  Aucune flashcard. Utilisez l'onglet "Créer" pour en ajouter !
-                </Text>
-              ) : (
+            <View style={styles.flashcardsContainer}>
+              {flashcards.length > 0 ? (
                 flashcards.map((card, index) => (
-                  <Animated.View 
-                    key={card.id} 
-                    style={[
-                      styles.flashcardItem,
-                      {
-                        opacity: new Animated.Value(1),
-                        transform: [{
-                          translateY: new Animated.Value(0)
-                        }]
-                      }
-                    ]}
-                  >
-                    <View style={styles.flashcardNumber}>
-                      <Text style={styles.flashcardNumberText}>{index + 1}</Text>
-                    </View>
+                  <View key={index} style={styles.flashcard}>
                     <View style={styles.flashcardContent}>
-                      <View style={styles.flashcardRow}>
-                        <View style={styles.flashcardSide}>
-                          <Text style={styles.flashcardLabel}>Français</Text>
-                          <Text style={styles.flashcardQuestion}>
-                            {card.question}
-                          </Text>
-                        </View>
-                        <Text style={styles.flashcardArrow}>→</Text>
-                        <View style={styles.flashcardSide}>
-                          <Text style={styles.flashcardLabel}>Traduction</Text>
-                          <Text style={styles.flashcardAnswer}>
-                            {card.answer}
-                          </Text>
-                        </View>
-                      </View>
+                      <Text style={styles.flashcardText}><Text style={styles.flashcardLabel}>Q:</Text> {card.question}</Text>
+                      <Text style={styles.flashcardText}><Text style={styles.flashcardLabel}>R:</Text> {card.answer}</Text>
                     </View>
-                  </Animated.View>
+                    <View style={styles.flashcardActions}>
+                      <TouchableOpacity onPress={() => handleUpdateFlashcard(card)} style={styles.actionButton}>
+                        <Text>✏️</Text>
+                      </TouchableOpacity>
+                      <TouchableOpacity onPress={() => handleDeleteFlashcard(card.id)} style={[styles.actionButton, styles.deleteAction]}>
+                        <Text>🗑️</Text>
+                      </TouchableOpacity>
+                    </View>
+                  </View>
                 ))
+              ) : (
+                <Text style={styles.noFlashcardsText}>Aucune flashcard dans ce deck.</Text>
               )}
             </View>
           )}
@@ -396,75 +459,51 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: '#666',
   },
-  flashcardsList: {
-    marginTop: 10,
+  flashcardsContainer: {
+    marginTop: 15,
+    borderTopWidth: 1,
+    borderTopColor: '#eee',
+    paddingTop: 15,
+  },
+  flashcard: {
+    backgroundColor: '#fff',
+    padding: 15,
+    borderRadius: 8,
+    marginBottom: 10,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.05,
+    shadowRadius: 2,
+    elevation: 2,
+  },
+  flashcardContent: {
+    flex: 1,
+  },
+  flashcardActions: {
+    flexDirection: 'row',
+  },
+  actionButton: {
+    padding: 8,
+    marginLeft: 10,
+  },
+  deleteAction: {
+    // Pas de style particulier pour l'instant
+  },
+  flashcardText: {
+    fontSize: 16,
+    color: '#333',
+  },
+  flashcardLabel: {
+    fontWeight: 'bold',
   },
   noFlashcardsText: {
     textAlign: 'center',
     color: '#666',
+    marginVertical: 20,
     fontStyle: 'italic',
-    padding: 20,
-  },
-  flashcardItem: {
-    backgroundColor: '#fff',
-    borderRadius: 12,
-    marginBottom: 12,
-    flexDirection: 'row',
-    overflow: 'hidden',
-    // Ombres
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
-  },
-  flashcardNumber: {
-    backgroundColor: '#007AFF',
-    width: 40,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  flashcardNumberText: {
-    color: '#fff',
-    fontWeight: 'bold',
-    fontSize: 16,
-  },
-  flashcardContent: {
-    flex: 1,
-    padding: 15,
-  },
-  flashcardRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-  },
-  flashcardSide: {
-    flex: 1,
-    alignItems: 'center',
-  },
-  flashcardLabel: {
-    fontSize: 11,
-    color: '#999',
-    marginBottom: 4,
-    textTransform: 'uppercase',
-    letterSpacing: 0.5,
-  },
-  flashcardQuestion: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#333',
-    textAlign: 'center',
-  },
-  flashcardArrow: {
-    fontSize: 20,
-    color: '#007AFF',
-    marginHorizontal: 10,
-  },
-  flashcardAnswer: {
-    fontSize: 16,
-    color: '#007AFF',
-    fontWeight: '500',
-    textAlign: 'center',
   },
   deckInfo: {
     marginTop: 30,
@@ -476,5 +515,15 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: '#666',
     marginVertical: 2,
+  },
+  toggleButton: {
+    padding: 15,
+    borderRadius: 10,
+    alignItems: 'center',
+    marginVertical: 5,
+  },
+  toggleButtonText: {
+    color: '#007AFF',
+    fontWeight: '600',
   },
 }); 

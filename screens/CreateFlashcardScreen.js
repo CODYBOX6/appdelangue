@@ -12,8 +12,8 @@ import {
   Platform,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import { getApiUrl, getAuthHeaders } from '../config/api';
+import localStorageAPI from '../services/localStorageAPI';
+import { useFocusEffect } from '@react-navigation/native';
 
 export default function CreateFlashcardScreen({ navigation }) {
   const [motFrancais, setMotFrancais] = useState('');
@@ -23,30 +23,23 @@ export default function CreateFlashcardScreen({ navigation }) {
   const [decks, setDecks] = useState([]);
   const [loading, setLoading] = useState(false);
 
-  // Charger les decks existants
-  useEffect(() => {
-    loadDecks();
-  }, []);
+  // Recharger les decks à chaque fois que l'écran est focus
+  useFocusEffect(
+    React.useCallback(() => {
+      loadDecks();
+    }, [])
+  );
 
   const loadDecks = async () => {
+    setLoading(true);
     try {
-      const token = await AsyncStorage.getItem('authToken');
-      const response = await fetch(getApiUrl('/products'), {
-        headers: getAuthHeaders(token),
-      });
-      
-      if (response.ok) {
-        const data = await response.json();
-        // Transformer en decks de langues (même logique que DeckListScreen)
-        const languageDecks = data.slice(0, 10).map((item, index) => ({
-          id: item.id,
-          title: getLanguageInfo(index).title,
-          language: getLanguageInfo(index).language,
-        }));
-        setDecks(languageDecks);
-      }
+      const data = await localStorageAPI.getDecks();
+      setDecks(data);
     } catch (error) {
       console.error('Erreur chargement decks:', error);
+      Alert.alert('Erreur', 'Impossible de charger les decks locaux.');
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -68,34 +61,42 @@ export default function CreateFlashcardScreen({ navigation }) {
 
   const handleCreateFlashcard = async () => {
     if (!motFrancais || !traduction || !selectedDeckId) {
-      Alert.alert('Erreur', 'Veuillez remplir tous les champs et sélectionner un deck');
+      Alert.alert('⚠️ Attention', 'Veuillez remplir tous les champs et sélectionner un deck.');
       return;
     }
 
     setLoading(true);
 
     try {
-      // Dans une vraie app, on ferait un POST vers l'API
-      // Pour la démo, on simule juste le succès
-      Alert.alert(
-        'Succès ! 🎉',
-        `Nouvelle flashcard ajoutée :\n\n${motFrancais} → ${traduction}\n\nDeck : ${selectedLanguage}`,
-        [
-          {
-            text: 'Créer une autre',
-            onPress: () => {
-              setMotFrancais('');
-              setTraduction('');
-            }
-          },
-          {
-            text: 'Voir le deck',
-            onPress: () => navigation.navigate('Decks')
-          }
-        ]
-      );
+      const result = await localStorageAPI.addFlashcard(selectedDeckId, {
+        question: motFrancais,
+        answer: traduction,
+      });
+
+      if (result.success) {
+        Alert.alert(
+          'Succès ! 🎉',
+          `Nouvelle flashcard ajoutée au deck "${selectedLanguage}"`,
+          [
+            {
+              text: 'Créer une autre',
+              onPress: () => {
+                setMotFrancais('');
+                setTraduction('');
+              },
+            },
+            {
+              text: 'Voir le deck',
+              onPress: () => navigation.navigate('Decks'),
+            },
+          ]
+        );
+      } else {
+        Alert.alert('❌ Erreur', result.message || 'Impossible de créer la flashcard.');
+      }
     } catch (error) {
-      Alert.alert('Erreur', 'Impossible de créer la flashcard');
+      Alert.alert('❌ Erreur', "Une erreur inattendue est survenue.");
+      console.error('Create flashcard error:', error);
     } finally {
       setLoading(false);
     }
