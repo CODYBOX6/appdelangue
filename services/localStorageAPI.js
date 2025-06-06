@@ -3,9 +3,9 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 // Service qui simule une API mais utilise AsyncStorage pour la persistance
 // Parfait pour une démo académique avec de vraies modifications !
 
-const STORAGE_KEYS = {
+export const STORAGE_KEYS = {
   TOKEN: 'authToken',
-  DECKS: 'flashcard_decks'
+  DECKS: 'decks',
 };
 
 // Données initiales des decks
