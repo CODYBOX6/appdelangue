@@ -1,14 +1,15 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-// Service qui simule une API mais utilise AsyncStorage pour la persistance
-// Parfait pour une démo académique avec de vraies modifications !
+// C'est mon API maison, en gros ca sauvegarde tout sur le tel
+// Ca fait le taff pour le projet, pas besoin de vrai serveur
 
 export const STORAGE_KEYS = {
   TOKEN: 'authToken',
   DECKS: 'decks',
+  USERS: 'app_users',
 };
 
-// Données initiales des decks
+// les decks de base, pour pas partir de zero
 const initialDecks = [
   {
     id: '1',
@@ -162,41 +163,70 @@ const initialDecks = [
   }
 ];
 
-// Initialiser les decks au premier lancement
-const initializeDecks = async () => {
+// initialise les données de base
+const initializeData = async () => {
   try {
+    // check si decks existent déjà
     const existingDecks = await AsyncStorage.getItem(STORAGE_KEYS.DECKS);
     if (!existingDecks) {
       await AsyncStorage.setItem(STORAGE_KEYS.DECKS, JSON.stringify(initialDecks));
-      console.log('✅ Decks initialisés avec succès');
+    }
+    // check si users existent déjà
+    const existingUsers = await AsyncStorage.getItem(STORAGE_KEYS.USERS);
+    if (!existingUsers) {
+      const demoUser = { username: 'mor_2314', password: '83r5^_' };
+      await AsyncStorage.setItem(STORAGE_KEYS.USERS, JSON.stringify([demoUser]));
     }
   } catch (error) {
-    console.error('❌ Erreur initialisation decks:', error);
+    console.error('❌ Erreur initialisation données:', error);
   }
 };
 
-// API simulée avec persistance locale
+// mon 'API' locale, avec toutes les fonctions pour gérer les données
 export const localStorageAPI = {
-  // Authentification
+  // pour s'inscrire
+  register: async (username, password) => {
+    await initializeData();
+    const usersJson = await AsyncStorage.getItem(STORAGE_KEYS.USERS);
+    const users = usersJson ? JSON.parse(usersJson) : [];
+
+    if (users.find(u => u.username === username)) {
+      return { success: false, message: 'Ce nom d\'utilisateur est déjà pris.' };
+    }
+
+    users.push({ username, password });
+    await AsyncStorage.setItem(STORAGE_KEYS.USERS, JSON.stringify(users));
+    return { success: true };
+  },
+
+  // pour se connecter
   login: async (username, password) => {
-    // Simulation de l'authentification
-    if (username === 'mor_2314' && password === '83r5^_') {
+    await initializeData();
+    const usersJson = await AsyncStorage.getItem(STORAGE_KEYS.USERS);
+    const users = usersJson ? JSON.parse(usersJson) : [];
+
+    const user = users.find(u => u.username === username && u.password === password);
+
+    if (user) {
+      // ÉTAPES A & B - création token et stockage
       const token = 'fake-jwt-token-' + Date.now();
       await AsyncStorage.setItem(STORAGE_KEYS.TOKEN, token);
+
       return { success: true, token };
     }
     return { success: false, message: 'Identifiants incorrects' };
   },
 
-  // Déconnexion
+  // déconnexion - vire le token
   logout: async () => {
+    // ÉTAPE F - déconnexion: suppr token
     await AsyncStorage.removeItem(STORAGE_KEYS.TOKEN);
   },
 
-  // Récupérer tous les decks
+  // récup tous les decks
   getDecks: async () => {
     try {
-      await initializeDecks(); // S'assurer que les decks sont initialisés
+      await initializeData(); // faut verifier que les données sont la avant
       const decksJson = await AsyncStorage.getItem(STORAGE_KEYS.DECKS);
       return JSON.parse(decksJson) || [];
     } catch (error) {
@@ -205,24 +235,24 @@ export const localStorageAPI = {
     }
   },
 
-  // Récupérer un deck par ID
+  // trouver un deck avec son id
   getDeckById: async (id) => {
     const decks = await localStorageAPI.getDecks();
     return decks.find(deck => deck.id === id);
   },
 
-  // Mettre à jour un deck
+  // pour modifier un deck
   updateDeck: async (id, updatedData) => {
     try {
       const decks = await localStorageAPI.getDecks();
       const index = decks.findIndex(deck => deck.id === id);
       
       if (index !== -1) {
-        // Garder les flashcards existantes
+        // qd je modifie un deck, je veux pas ecraser les cartes dedans
         decks[index] = {
           ...decks[index],
           ...updatedData,
-          flashcards: decks[index].flashcards // Préserver les flashcards
+          flashcards: decks[index].flashcards // donc je les garde
         };
         
         await AsyncStorage.setItem(STORAGE_KEYS.DECKS, JSON.stringify(decks));
@@ -237,7 +267,7 @@ export const localStorageAPI = {
     }
   },
 
-  // Supprimer un deck
+  // pour supprimer un deck
   deleteDeck: async (id) => {
     try {
       const decks = await localStorageAPI.getDecks();
@@ -252,7 +282,7 @@ export const localStorageAPI = {
     }
   },
 
-  // Ajouter un deck
+  // pour creer un nouveau deck
   createDeck: async (newDeck) => {
     try {
       const decks = await localStorageAPI.getDecks();
@@ -272,7 +302,7 @@ export const localStorageAPI = {
     }
   },
 
-  // Ajouter une flashcard à un deck
+  // ajouter une carte a un deck precis
   addFlashcard: async (deckId, flashcard) => {
     try {
       const decks = await localStorageAPI.getDecks();
@@ -299,7 +329,7 @@ export const localStorageAPI = {
     }
   },
 
-  // Mettre à jour une flashcard
+  // modifier une carte
   updateFlashcard: async (deckId, flashcardId, updatedData) => {
     try {
       const decks = await localStorageAPI.getDecks();
@@ -321,7 +351,7 @@ export const localStorageAPI = {
     }
   },
 
-  // Supprimer une flashcard
+  // supprimer une carte
   deleteFlashcard: async (deckId, flashcardId) => {
     try {
       const decks = await localStorageAPI.getDecks();

@@ -23,7 +23,7 @@ export default function CreateFlashcardScreen({ navigation }) {
   const [decks, setDecks] = useState([]);
   const [loading, setLoading] = useState(false);
 
-  // Recharger les decks à chaque fois que l'écran est focus
+  // ca recharge les decks quand je reviens sur la page
   useFocusEffect(
     React.useCallback(() => {
       loadDecks();
@@ -296,7 +296,7 @@ const styles = StyleSheet.create({
   },
   tipText: {
     fontSize: 14,
-    color: '#666',
+    color: '#555',
     marginBottom: 5,
   },
 }); 

@@ -1,27 +1,25 @@
-// Configuration de l'API
-// Pour changer d'API (Laravel, json-server, etc.), modifiez simplement l'URL ici
+// Config API - modifie ici pour changer d'API
 
 export const API_CONFIG = {
-  // URL de base de l'API - Changez cette URL pour utiliser votre propre API
+  // URL de base - change ça pour ton API perso
   BASE_URL: 'https://fakestoreapi.com',
   
-  // Endpoints
+  // endpoints
   LOGIN: '/auth/login',
-  DECKS: '/products', // On utilise /products pour simuler les decks avec fakestoreapi
+  DECKS: '/products', // on utilise products de fakestoreapi pour simuler des decks
   
-  // Pour une vraie API de decks/flashcards, utilisez :
-  // BASE_URL: 'https://votre-api.com/api',
+  // pour une vraie API de flashcards, mettre:
+  // BASE_URL: 'https://ton-api.com/api',
   // LOGIN: '/login',
   // DECKS: '/decks',
-  // FLASHCARDS: '/flashcards',
 };
 
-// Helper pour construire les URLs complètes
+// helper pour les URL complètes
 export const getApiUrl = (endpoint) => {
   return `${API_CONFIG.BASE_URL}${endpoint}`;
 };
 
-// Helper pour ajouter le token aux headers
+// helper pour mettre le token dans les headers
 export const getAuthHeaders = (token) => {
   return {
     'Authorization': `Bearer ${token}`,

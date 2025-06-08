@@ -15,12 +15,12 @@ import { useFocusEffect } from '@react-navigation/native';
 import localStorageAPI from '../services/localStorageAPI';
 
 export default function ReminderView({ navigation }) {
-  // États locaux pour l'écran de rappels
+  // les variables pour cet ecran
   const [decks, setDecks] = useState([]);
   const [reminders, setReminders] = useState({});
   const [loading, setLoading] = useState(true);
 
-  // Recharger les decks à chaque fois que l'écran est focus
+  // ca recharge les decks quand je reviens sur la page
   useFocusEffect(
     React.useCallback(() => {
       loadDecks();
@@ -31,7 +31,7 @@ export default function ReminderView({ navigation }) {
     setLoading(true);
     try {
       const data = await localStorageAPI.getDecks();
-      // On simplifie les données pour la vue
+      // je prends que ce qui m'interesse pour l'affichage
       const languageDecks = data.map((item, index) => {
         const colors = ['#FFB347', '#FFD700', '#B0E57C', '#AEC6CF', '#F49AC2', '#ff7f7f', '#c1a7e2', '#87ceeb', '#f7cac9', '#98ff98'];
         return {

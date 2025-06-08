@@ -6,7 +6,7 @@ function DeckRowItem({ item, shakeMode, onSelectDeck, onDeleteDeck }) {
   const scaleAnim = useRef(new Animated.Value(1)).current;
   const fadeAnim = useRef(new Animated.Value(0)).current;
 
-  // Animation de fade in pour un effet d'apparition
+  // petite animation quand l'element apparait
   useEffect(() => {
     Animated.timing(fadeAnim, {
       toValue: 1,
@@ -75,7 +75,7 @@ const styles = StyleSheet.create({
     padding: 20,
     marginVertical: 1,
     backgroundColor: '#444',
-    // Ombre légère pour un effet de profondeur
+    // une petite ombre pour donner du relief
     shadowColor: '#000',
     shadowOpacity: 0.25,
     shadowRadius: 5,

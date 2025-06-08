@@ -1,117 +1,78 @@
-# 🌍 Application React Native - Apprentissage de Langues avec Flashcards
+# App flashcards de langues 
 
-## 🎯 Description
-Application React Native (Expo) d'apprentissage de langues utilisant un système de flashcards. L'app démontre l'utilisation complète d'une API REST avec authentification par token JWT, permettant d'apprendre 10 langues différentes avec des mots et leurs traductions. Parfait pour mémoriser du vocabulaire !
+J'ai codé cette app en React Native/Expo pour apprendre les langues avec des cartes recto-verso. Y'a un système d'auth avec tokens JWT pour la sécurité. Bref on peut apprendre plein de langues avec.
 
-## ✅ Points validés selon le cahier des charges
+Pour le prof (validations des critères):
 
-### 1. Structure (3 écrans minimum) ✓
-- **LoginScreen** : Authentification avec formulaire
-- **DeckListScreen** : Liste des decks avec nombre de cartes
-- **DeckDetailScreen** : Détail du deck, modification, suppression et affichage des flashcards
+Structure: j'ai bien les 3 écrans demandés
+- écran login avec formulaire
+- écran liste des decks (affiche nb de cartes) 
+- écran détail qui montre les cartes avec modif/suppression
 
-### 2. Concepts React utilisés ✓
-- **useState** : Gestion des états locaux (formulaires, données)
-- **useEffect** : Chargement des données au montage
-- **props** : Passage de données entre écrans via navigation
-- **AsyncStorage** : Stockage persistant du token
-- **Navigation** : React Navigation pour la navigation entre écrans
+Pour le React j'ai tout utilisé:
+- useState pour les données, forms, etc
+- useEffect pour charger des trucs
+- props entre écrans
+- AsyncStorage pour le token 
+- react nav pour la navigation
 
-### 3. Opérations API REST ✓
-- **POST** : `/auth/login` - Connexion et récupération du token
-- **GET** : `/products` (simulant `/decks`) - Récupération de la liste des decks
-- **PUT** : `/products/:id` (simulant `/decks/:id`) - Modification d'un deck
-- **DELETE** : `/products/:id` (simulant `/decks/:id`) - Suppression d'un deck
+Côté API REST:
+- POST login → token
+- GET decks
+- PUT modif
+- DELETE suppression
 
-### 4. Gestion du token ✓
-- Stockage sécurisé dans AsyncStorage après connexion
-- Ajout automatique dans les headers de toutes les requêtes
-- Redirection vers login si token absent
+Pour le token je fais comme demandé:
+- stocké dans AsyncStorage 
+- ajouté dans tous les headers
+- redirection login si pas de token
 
-## 🚀 Installation et lancement
+Pour lancer l'app:
 
-```bash
-# 1. Installer les dépendances
 npm install
-
-# 2. Lancer l'application
 npm start
 
-# 3. Scanner le QR code avec Expo Go (iOS/Android)
-```
+Puis scanner avec Expo Go
 
-## 🔧 Configuration de l'API
+Config API:
+J'utilise fakestoreapi par défaut mais c'est modifiable dans config/api.js
 
-L'application est configurée pour utiliser `fakestoreapi.com` par défaut. Pour utiliser votre propre API (Laravel, Node.js, etc.), modifiez le fichier `config/api.js` :
-
-```javascript
 export const API_CONFIG = {
-  // Remplacez par votre URL d'API
-  BASE_URL: 'https://votre-api.com/api',
+  BASE_URL: 'ton-api.com/api',
   LOGIN: '/login',
-  PRODUCTS: '/products',
+  PRODUCTS: '/products', 
 };
-```
 
-### Exemple avec API Laravel locale via ngrok :
-```javascript
-BASE_URL: 'https://abc123.ngrok.io/api',
-```
 
-## 🌐 Langues disponibles
+Les langues dispo:
+- Anglais (trucs de base)
+- Espagnol (phrases utiles)  
+- Allemand (quotidien)
+- Italien (resto & bouffe)
+- Japonais (hiragana)
+- Chinois (HSK1)
+- Portugais (voyage)
+- Russe (cyrillique, galère!)
+- Arabe (salutations)
+- Coréen (kpop)
 
-L'application propose 10 decks de langues différentes :
-- 🇬🇧 **Anglais** - Vocabulaire de base
-- 🇪🇸 **Espagnol** - Phrases courantes  
-- 🇩🇪 **Allemand** - Vie quotidienne
-- 🇮🇹 **Italien** - Restaurant & Cuisine
-- 🇯🇵 **Japonais** - Hiragana
-- 🇨🇳 **Chinois** - HSK 1
-- 🇧🇷 **Portugais** - Voyages
-- 🇷🇺 **Russe** - Alphabet cyrillique
-- 🇸🇦 **Arabe** - Salutations
-- 🇰🇷 **Coréen** - K-pop & Culture
+Identifiants test:
+- Username: mor_2314
+- Password: 83r5^_
 
-## 📱 Identifiants de test
+Pour la vidéo je montre:
+1. Connexion/token
+2. Liste des decks
+3. Navigation
+4. Cartes dans chaque deck
+5. Modif d'un deck
+6. Suppression
+7. Fonctionnement du token
+8. Compatibilité avec d'autres API
 
-Pour l'API de démonstration (fakestoreapi) :
-- **Username** : mor_2314
-- **Password** : 83r5^_
+J'ai commenté le code et centralisé la config API. L'app est compatible avec n'importe quelle API qui respecte JWT.
 
-## 🗂️ Structure du projet
 
-```
-├── App.js                    # Point d'entrée, configuration navigation
-├── config/
-│   └── api.js               # Configuration centralisée de l'API
-├── screens/
-│   ├── LoginScreen.js       # Écran de connexion
-│   ├── DeckListScreen.js    # Liste des decks
-│   └── DeckDetailScreen.js  # Détail du deck avec flashcards
-└── README.md
-```
 
-## 🎥 Points clés pour la vidéo démo
+  Petite modif de l'app pour montrer le code concernant la durée de vie et gestion du token a travers l application (debug mode) sera enlevé de l'app après la vidéo.
 
-1. **Connexion** : Montrer la saisie des identifiants et la récupération du token
-2. **Liste des decks** : Afficher la liste récupérée via GET avec le token et le nombre de cartes
-3. **Navigation** : Passage de la liste au détail d'un deck avec les props
-4. **Flashcards** : Montrer la liste des flashcards dans le deck
-5. **Modification** : Démontrer la modification d'un deck (PUT)
-6. **Suppression** : Supprimer un deck (DELETE)
-7. **Token** : Expliquer comment le token est stocké et utilisé
-8. **Flexibilité** : Mentionner que l'app fonctionne avec n'importe quelle API REST
-
-## 🛠️ Technologies utilisées
-
-- React Native (Expo)
-- React Navigation
-- AsyncStorage
-- Fetch API
-
-## 📝 Notes importantes
-
-- Le code est commenté pour faciliter la compréhension
-- La configuration API est centralisée pour faciliter les changements
-- Gestion des erreurs et états de chargement incluse
-- Compatible avec toute API REST respectant les standards JWT # appdelangue

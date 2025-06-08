@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
 import {
   View,
   Text,
@@ -9,19 +9,20 @@ import {
   ActivityIndicator,
   Animated,
 } from 'react-native';
-import localStorageAPI from '../services/localStorageAPI';
+import { AuthContext } from '../App';
 
-// ÉCRAN 1 : LoginScreen - Authentification avec stockage local
+// C'est l'écran de co, tout simple
 export default function LoginScreen({ navigation }) {
-  // useState pour gérer les champs du formulaire
+  // les variables pour le form
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
 
-  // Animation pour le feedback
+  // une petite anim pour faire joli
   const fadeAnim = new Animated.Value(1);
+  const { signIn } = useContext(AuthContext);
 
-  // Fonction de connexion avec stockage local
+  // la fonction qui verifie si le mdp est bon
   const handleLogin = async () => {
     if (!username || !password) {
       Alert.alert('⚠️ Attention', 'Veuillez remplir tous les champs');
@@ -30,7 +31,7 @@ export default function LoginScreen({ navigation }) {
 
     setLoading(true);
 
-    // Animation de pulsation pendant le chargement
+    // petite anim de chargement pour pas que l'user s'impatiente
     const pulseAnimation = Animated.loop(
       Animated.sequence([
         Animated.timing(fadeAnim, {
@@ -48,26 +49,17 @@ export default function LoginScreen({ navigation }) {
     pulseAnimation.start();
 
     try {
-      // Authentification avec stockage local
-      const result = await localStorageAPI.login(username, password);
+      // je check les infos avec le contexte
+      const result = await signIn({ username, password });
 
-      if (result.success) {
-        // Animation de succès
-        Alert.alert(
-          '✅ Connexion réussie !',
-          'Bienvenue dans votre application de flashcards !',
-          [{ 
-            text: 'Commencer', 
-            onPress: () => navigation.replace('MainTabs')
-          }]
-        );
-      } else {
+      if (!result.success) {
         Alert.alert(
           '❌ Erreur de connexion',
           result.message || 'Identifiants incorrects',
           [{ text: 'Réessayer' }]
         );
       }
+      // La navigation est gérée par le contexte maintenant, plus besoin de le faire ici
     } catch (error) {
       Alert.alert('❌ Erreur', 'Problème de connexion');
       console.error('Erreur login:', error);
@@ -85,7 +77,7 @@ export default function LoginScreen({ navigation }) {
         <Text style={styles.subtitle}>Apprenez les langues facilement</Text>
       </Animated.View>
       
-      {/* Formulaire de connexion */}
+      {/* le formulaire de co */}
       <TextInput
         style={styles.input}
         placeholder="Nom d'utilisateur"
@@ -120,12 +112,9 @@ export default function LoginScreen({ navigation }) {
         )}
       </TouchableOpacity>
 
-      {/* Info pour la démo */}
-      <View style={styles.infoBox}>
-        <Text style={styles.infoTitle}>🔐 Identifiants de test</Text>
-        <Text style={styles.infoText}>Username: mor_2314</Text>
-        <Text style={styles.infoText}>Password: 83r5^_</Text>
-      </View>
+      <TouchableOpacity onPress={() => navigation.navigate('SignUp')} style={styles.linkButton}>
+        <Text style={styles.linkText}>Pas encore de compte ? S'inscrire</Text>
+      </TouchableOpacity>
     </View>
   );
 }
@@ -183,22 +172,12 @@ const styles = StyleSheet.create({
     fontSize: 16,
     marginLeft: 10,
   },
-  infoBox: {
-    backgroundColor: '#e3f2fd',
-    padding: 15,
-    borderRadius: 10,
-    marginTop: 30,
+  linkButton: {
+    marginTop: 20,
     alignItems: 'center',
   },
-  infoTitle: {
+  linkText: {
+    color: '#007AFF',
     fontSize: 16,
-    fontWeight: 'bold',
-    color: '#1976d2',
-    marginBottom: 5,
-  },
-  infoText: {
-    fontSize: 14,
-    color: '#1565c0',
-    marginVertical: 2,
   },
 }); 
